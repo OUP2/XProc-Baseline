@@ -1,0 +1,7 @@
+out/*
+**/.DS_Store
+**/xspec/*-report.html
+**/xspec/*-compiled.xsl
+**/xspec/*-result.xml
+**/xspec/*_catalog.xml
+**/*-report.html
