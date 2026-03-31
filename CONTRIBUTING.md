@@ -32,9 +32,8 @@ Simply fork, edit, and submit a pull request.
 
 Before submitting a pull request:
 
-1. **Test with both Calabash and Morgana** (see 
-   [docs/processor-support.md](docs/processor-support.md))
-2. **Add test cases** in the relevant subfolder of `src/test/` for any bug fix or new feature
+1. **Test with both Calabash and Morgana** 
+2. **Add test cases** in the relevant subfolder of `src/test/` for any bug fix or new feature: see ["Writing Tests"](#writing-tests)
 3. **Run the full test suite**: *(coming soon)*
 4. **Update docs**
 
@@ -50,7 +49,7 @@ Before submitting a pull request:
 
 #### Commit Keywords
 
-Use these standardized keywords as prefixes for commit messages and as folder names in branch naming:
+Use these standardized keywords as prefixes followed by a colon for commit messages and as folder names in branch naming:
 
 - **feature**:
   A new feature or enhancement; a change to functionality
@@ -89,7 +88,7 @@ Test-Driven Development (TDD) is a software development practice where tests are
 
 1. Write the test - Define what you want the code to do (using clear GIVEN/WHEN/EXPECT labels and structures)
 2. Run the test - Verify it fails (because the implementation doesn't exist yet)
-3. Write the code - Implement the XSLT to make the test pass
+3. Write the code - Implement the code to make the test pass
 4. Run the test again - Verify it now passes
 
 ### Feature Requests
@@ -101,7 +100,10 @@ Large feature requests are best discussed as GitHub issues first. The maintainer
 
 1. **Fork** the repository
 2. **Create a branch**: `git checkout -b fix/my-fix` or `feature/my-feature`
-3. **Commit with clear messages**: `Fix baseline comparison for empty elements`
+3. **Commit with clear messages**: `Fix: baseline comparison for empty elements`
+   - Try to keep the first line to 50 characters or fewer
+   - Use the imperative mood
+   - Add necessary context on subsequent lines
 4. **Test thoroughly** (see Testing and Bug Fixes above)
 5. **Submit a PR** with:
    - Description of what changed and why
@@ -117,8 +119,9 @@ The maintainer will review within 1–2 weeks.
 
 By contributing to XProc-Baseline, you agree that your contributions will be licensed under the Apache License 2.0, and that, once merged, your contributions will become part of the copyrighted work.
 
-You retain copyright to your original contribution.
+You also agree that your contribution is your own original work, or that you have permission to contribute it, and that it doesn't violate anyone else's intellectual property rights.
 
+You retain copyright to your original (un-merged) contribution.
 
 ### Contributing Attribution
 
@@ -128,7 +131,7 @@ Please include your name and a brief description of your contribution in your pu
 
 Try to keep descriptions to a single line; if you feel that  you have made contributions in multiple contexts, list each as a separate line.
 
-Example Notice entry:
+**Example Notice entry:**
 
 ```
 Contributors:
