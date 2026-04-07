@@ -5,3 +5,4 @@ out/*
 **/xspec/*-result.xml
 **/xspec/*_catalog.xml
 **/*-report.html
+build/*
