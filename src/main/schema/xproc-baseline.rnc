@@ -37,7 +37,9 @@ config.all =
     attribute pipeline { xsd:NMTOKEN }
   }?
   
-manifest = element b:manifest { manifest.folder | manifest.zip | manifest.file }
+manifest = (
+  element b:manifest { manifest.folder | manifest.zip | manifest.file } | 
+  attribute manifest-href { xsd:anyURI })
 
 manifest.folder = element b:folder {
   attribute name { text },
@@ -46,10 +48,11 @@ manifest.folder = element b:folder {
 
 manifest.file = element b:file{
   manifest.attributes,
+  attribute size { text }?,
   attribute hash { text }?
 }
 
-manifest.zip = element b.archive{
+manifest.zip = element b:archive{
   manifest.attributes,
   ( manifest.folder | manifest.zip | manifest.file )* 
 }
@@ -57,7 +60,6 @@ manifest.zip = element b.archive{
 manifest.attributes = (
   attribute name { text },
   attribute content-type { text }?,
-  attribute size { text }?,
   attribute compression-method { text }?
 )
 
@@ -75,7 +77,7 @@ test =
     },
     element b:input { empty }?,
     element b:baseline {
-      attribute href { xsd:anyURI }
-      | manifest
+      attribute uri {xsd:anyURI},
+      manifest?
     }
   }
