@@ -10,14 +10,16 @@
   
   <p:option name="hash-algorithm" select="'crc'" static="true"/>
   
-  <p:declare-step name="create-manifest" type="b:create-manifest">
+  <p:declare-step type="b:create-manifest">
     <p:option name="path" required="true"/>
     <p:output port="result" primary="true" serialization="map{ 'indent': true()}"/>
     
     <p:file-info href="{resolve-uri($path)}"/>
     <b:manifest-process/>
-<!--    <p:delete match="//@* except (@xml:base|@name|@content-type)"/>-->
-    
+    <p:xslt>
+      <p:with-input port="stylesheet" href="../XSLT/manifest.xsl"/>
+    </p:xslt>
+    <p:wrap match="/" wrapper="b:manifest"/>
   </p:declare-step>
   
   <p:declare-step type="b:manifest-process">
@@ -27,15 +29,13 @@
     <p:for-each>
       <p:choose>
         <p:when test="/c:directory">
-          <!--        <p:message select="Found Directory {/*/@name}"/>-->
           <b:manifest-list-dir/>
         </p:when>
         <p:when test="/c:file[@content-type='application/zip']">
           <b:manifest-list-zip/>
         </p:when>
         <p:when test="/c:file">
-          <p:load href="{/*/@xml:base}"/>
-          <b:manifest-process/>
+          <b:manifest-list-file/>
         </p:when>
         <p:when test="p:document-property(., 'content-type') = 'application/zip'">
           <b:manifest-zip-entries/>
@@ -113,13 +113,28 @@
     <p:input port="source" primary="true"/>
     <p:output port="result" primary="true"/>
     
-<!--    <p:message select="Creating manifest entry for folder {/*/@xml:base}"/>-->
-    
-    <p:directory-list path="{resolve-uri(/*/@xml:base)}" detailed="true"/>
-    <p:make-absolute-uris match="@xml:base"/>
+    <p:directory-list path="{/*/@xml:base}" detailed="true"/>
+    <p:make-absolute-uris match="@xml:base" base-uri="{/*/@xml:base}"/>
     <p:viewport match="/c:directory/*">
       <b:manifest-process/>
     </p:viewport>
+    
+  </p:declare-step>
+  
+  <p:declare-step type="b:manifest-list-file">
+    <p:input port="source" primary="true"/>
+    <p:output port="result" primary="true"/>
+    
+    <p:identity name="list-file"/>
+    
+    <p:load href="{/*/@xml:base}"/>
+    <b:manifest-process/>
+    <p:identity name="file-processed"/>
+    
+    <p:insert position="first-child">
+      <p:with-input port="source" pipe="@list-file"/>
+      <p:with-input port="insertion" pipe="@file-processed"/>
+    </p:insert>
     
   </p:declare-step>
   
