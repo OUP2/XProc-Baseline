@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description
+  xmlns:p="http://www.w3.org/ns/xproc"
+  xmlns:c="http://www.w3.org/ns/xproc-step"
+  xmlns:x="http://www.jenitennison.com/xslt/xspec"
+  xmlns:b="http://ns.oup.com/xproc/baseline"
+  xmlns:bt="http://ns.oup.com/xproc/baseline_test-harness"
+  stylesheet="../../main/XSLT/create-harness.xsl"
+  run-as="external">
+  
+  <x:scenario label="WHEN matching in the default mode">
+
+    <x:scenario label="GIVEN a URL to the baseline XProc library">
+      <x:param name="baseline-xproc-uri" select="resolve-uri('../../main/xproc/Baseline.xpl')"/>
+
+      <x:scenario label="GIVEN a sample XProc Baseline test definition">
+        <x:context href="../baseline/dogfood.xml"/>
+
+        <x:expect label="EXPECT an XProc library">
+          <p:library exclude-inline-prefixes="#all" version="...">...</p:library>
+        </x:expect>
+        <x:expect label="EXPECT a '3.0' version" test="/p:library/@version eq '3.0'"/>
+
+        <x:expect label="EXPECT to convert any imports to the XProc namespace" test="/p:library/p:import">
+          <p:import href="../../main/xproc/Baseline.xpl"/>
+        </x:expect>
+
+      </x:scenario>
+
+    </x:scenario>
+
+  </x:scenario>
+  
+  <x:scenario label="WHEN testing the b:relativeUri function">
+    <x:call function="b:relativeUri"/>
+    
+    <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/'">
+      
+      <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'">
+        <x:call>
+          <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'"/>
+          <x:param name="base" select="'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/'"/>
+        </x:call>
+        <x:expect label="EXPECT the relative URL '../../../../main/xproc/Baseline.xpl'" select="'../../../../main/xproc/Baseline.xpl'"/>
+      </x:scenario>
+      
+      <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/'">
+        <x:call>
+          <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/'"/>
+          <x:param name="base" select="'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/'"/>
+        </x:call>
+        <x:expect label="EXPECT the relative URL '../../../../main/xproc/'" select="'../../../../main/xproc/'"/>
+      </x:scenario>
+      
+    </x:scenario>
+    
+    <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/somefile.xpl'">
+      
+      <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'">
+        <x:call>
+          <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'"/>
+          <x:param name="base" select="'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/somefile.xpl'"/>
+        </x:call>
+        <x:expect label="EXPECT the relative URL '../../../../main/xproc/Baseline.xpl'" select="'../../../../main/xproc/Baseline.xpl'"/>
+      </x:scenario>
+      
+      <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/'">
+        <x:call>
+          <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/'"/>
+          <x:param name="base" select="'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/'"/>
+        </x:call>
+        <x:expect label="EXPECT the relative URL '../../../../main/xproc/'" select="'../../../../main/xproc/'"/>
+      </x:scenario>
+      
+    </x:scenario>
+    
+  </x:scenario>
+
+</x:description>

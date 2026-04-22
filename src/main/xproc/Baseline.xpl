@@ -10,10 +10,21 @@
     
   <p:option name="b:hash-algorithm" select="'crc'" static="true"/>
   
+  <p:declare-step type="b:create-harness">
+    <p:option name="test_uri" required="false" select="'file:/Users/yamahito/Projects/XProc-Baseline/src/test/baseline/dogfood.xml'" static="true"/>
+    <p:input port="source" primary="true" href="{$test_uri}"/>
+    
+    <p:variable name="harness_uri" select="resolve-uri((/b:regression-tests/b:config/b:test-harness/@href)[1])"/>
+    <p:xslt parameters="map{'baseline-xproc-href': static-base-uri()}">
+      <p:with-input port="stylesheet" href="../XSLT/create-harness.xsl"/>
+    </p:xslt>
+<!--    <p:message select="static base uri is {static-base-uri()}"/>-->
+  </p:declare-step>
   
   <p:declare-step type="b:create-manifest">
     <p:option name="path" required="true"/>
     <p:output port="result" primary="true" serialization="map{ 'indent': true()}"/>
+    
     
     <p:file-info href="{resolve-uri($path)}"/>
     <b:manifest-process/>
