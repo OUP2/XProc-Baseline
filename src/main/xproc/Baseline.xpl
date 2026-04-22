@@ -7,8 +7,9 @@
   xmlns:map="http://www.w3.org/2005/xpath-functions/map"
   exclude-inline-prefixes="#all"
   version="3.0">
+    
+  <p:option name="b:hash-algorithm" select="'crc'" static="true"/>
   
-  <p:option name="hash-algorithm" select="'crc'" static="true"/>
   
   <p:declare-step type="b:create-manifest">
     <p:option name="path" required="true"/>
@@ -43,6 +44,9 @@
         <p:when test="p:document-property(., 'content-type') => matches('^[^/]+/([\+]+\+)?xml$')">
           <b:manifest-xml-file/>
         </p:when>
+        <p:when test="p:document-property(., 'content-type') => starts-with('text/')">
+          <b:manifest-text-file/>
+        </p:when>
         <p:otherwise>
           <b:manifest-binary-file/>
         </p:otherwise>
@@ -55,7 +59,17 @@
     <p:output port="result" primary="true"/>
     
     <p:cast-content-type content-type="application/xml"/>
-    <p:hash algorithm="{$hash-algorithm}" match="/" value="{/c:data}"/>
+    <p:hash algorithm="{$b:hash-algorithm}" match="/" value="{/c:data}"/>
+    
+  </p:declare-step>
+  
+  <p:declare-step type="b:manifest-text-file">
+    <p:input port="source" primary="true"/>
+    <p:output port="result" primary="true"/>
+
+    <p:wrap-sequence wrapper="text"/>
+    <b:canon/>
+    <p:hash algorithm="{$b:hash-algorithm}" match="/" value="{/text}"/>
     
   </p:declare-step>
   
@@ -63,7 +77,8 @@
     <p:input port="source" primary="true"/>
     <p:output port="result" primary="true"/>
     
-    <p:hash algorithm="{$hash-algorithm}" match="/" value="{serialize(/)}"/>
+    <b:canon/>
+    <p:hash algorithm="{$b:hash-algorithm}" match="/" value="{serialize(/)}"/>
   
   </p:declare-step>
   
@@ -136,6 +151,12 @@
       <p:with-input port="insertion" pipe="@file-processed"/>
     </p:insert>
     
+  </p:declare-step>
+  
+  <p:declare-step type="b:canon">
+    <p:input port="source" primary="true" sequence="true"/>
+    <p:output port="result" primary="true" sequence="true"/>
+    <p:identity/>
   </p:declare-step>
   
 </p:library>
