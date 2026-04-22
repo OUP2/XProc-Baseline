@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:regression-tests xmlns:b="http://ns.oup.com/xproc/baseline">
+  
+  <b:imports>
+    <b:import href="${cf}"/>
+  </b:imports>
+  
+  <b:test pipeline="" xml:id="${id}">
+    <b:description></b:description>
+    <b:baseline uri=""></b:baseline>
+  </b:test>
+  
+</b:regression-tests>

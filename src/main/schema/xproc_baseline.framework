@@ -144,7 +144,9 @@
 						</authorExtension>
 					</field>
 					<field name="templatesLocations">
-						<String-array/>
+						<String-array>
+							<String>${frameworkDir}/template</String>
+						</String-array>
 					</field>
 					<field name="xmlCatalogs">
 						<String-array/>

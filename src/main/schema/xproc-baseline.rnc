@@ -14,7 +14,7 @@
 
 namespace b = "http://ns.oup.com/xproc/baseline"
 
-start = regression-tests | manifest
+start = (regression-tests | manifest.element)
 
 regression-tests =
   element b:regression-tests {
@@ -28,6 +28,9 @@ regression-tests =
   }
   
 config.global =
+  element b:test-harness {
+    attribute href { xsd:anyURI }
+  },
   element b:hash {
     attribute algorithm { "md" | "sha" | "crc" }
   }?
@@ -37,9 +40,11 @@ config.all =
     attribute pipeline { xsd:NMTOKEN }
   }?
   
-manifest = (
-  element b:manifest { manifest.folder | manifest.zip | manifest.file } | 
-  attribute manifest-href { xsd:anyURI })
+manifest = 
+  manifest.element | 
+  attribute manifest-href { xsd:anyURI }
+  
+manifest.element = element b:manifest { manifest.folder | manifest.zip | manifest.file }
 
 manifest.folder = element b:folder {
   attribute name { text },
@@ -68,13 +73,13 @@ test =
     attribute pipeline { xsd:NMTOKEN },
     attribute xml:id { xsd:NCName },
     element b:description { text },
-    element b:config { config.all },
+    element b:config { config.all }?,
     element b:options {
       element b:option {
         attribute name { xsd:NCName },
         attribute select { text }
       }+
-    },
+    }?,
     element b:input { empty }?,
     element b:baseline {
       attribute uri {xsd:anyURI},
