@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description
+  xmlns:x="http://www.jenitennison.com/xslt/xspec"
+  stylesheet="../../main/XSLT/canon-dates.xsl"
+  run-as="external">
+  
+  <x:scenario label="WHEN matching nodes">
+    
+    <x:scenario label="GIVEN a replacement date">
+      <x:param name="replacement_date" select="'2001-01-01T01:01:01.000001Z'"></x:param>
+    
+      <x:scenario label="GIVEN a date stamp in a text node">
+        <x:context>
+          <date>Here is a date: 2014-12-10T15:36:25.724000Z</date>
+        </x:context>
+        <x:expect label="EXPECT the date to be replaced with the specified date">
+          <date>Here is a date: 2001-01-01T01:01:01.000001Z</date>
+        </x:expect>
+      </x:scenario>
+      
+      <x:scenario label="GIVEN a date stamp in an attribute value">
+        <x:context>
+          <date ds="published 2014-12-10T15:36:25.724000Z"/>
+        </x:context>
+        <x:expect label="EXPECT the date in the attribute value to be replaced as specified">
+          <date ds="published 2001-01-01T01:01:01.000001Z"/>
+        </x:expect>
+      </x:scenario>
+    
+    </x:scenario>
+    
+  </x:scenario>
+  
+</x:description>
