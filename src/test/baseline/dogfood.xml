@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<b:regression-tests xmlns:b="http://ns.oup.com/xproc/baseline">
+<b:regression-tests
+  xmlns:bc="http://ns.oup.com/xproc/baseline_canon"
+  xmlns:b="http://ns.oup.com/xproc/baseline">
   
   <b:imports>
     <b:import href="../../main/xproc/Baseline.xpl"/>
+    <b:import href="../../main/xproc/Baseline-canon.xpl"/>
   </b:imports>
   
   <b:config>
     <b:test-harness href="baseline_test-harness.xpl"/>
+    <b:canonicalization pipeline="bc:UUIDs"/>
   </b:config>
   
   <b:test pipeline="b:create-manifest" xml:id="xzr_w35_z3c">
     <b:description>Regression test for manifest creation from a file or folder</b:description>
+    <b:config>
+      <b:canonicalization pipeline="bc:timestamps"/>
+    </b:config>
     <b:options>
       <b:option name="path" select="'../data/Input/manifest-creation/'"/>
     </b:options>
     <b:baseline uri="../data/baseline/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx"/>
+  </b:test>
+  
+  <b:test pipeline="b:create-harness" xml:id="test_shx_mpl_bjc">
+    <b:description>Regression test for harness creation from a file or folder</b:description>
+    <b:baseline uri="../data/baseline/test-harness/baseline_test-harness.xpl"/>
   </b:test>
   
 </b:regression-tests>

@@ -4,14 +4,14 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:x="http://www.jenitennison.com/xslt/xspec"
   xmlns:b="http://ns.oup.com/xproc/baseline"
-  xmlns:bt="http://ns.oup.com/xproc/baseline_test-harness"
+  xmlns:bc="http://ns.oup.com/xproc/baseline_canon"
   stylesheet="../../main/XSLT/create-harness.xsl"
   run-as="external">
-  
-  <x:scenario label="WHEN matching in the default mode">
 
-    <x:scenario label="GIVEN a URL to the baseline XProc library">
-      <x:param name="baseline-xproc-uri" select="resolve-uri('../../main/xproc/Baseline.xpl')"/>
+  <x:scenario label="GIVEN a URL to the baseline XProc library">
+    <x:param name="baseline-xproc-uri" select="resolve-uri('../../../main/xproc/Baseline.xpl')"/>
+    
+    <x:scenario label="WHEN matching in the default mode">
 
       <x:scenario label="GIVEN a sample XProc Baseline test definition">
         <x:context href="../baseline/dogfood.xml"/>
@@ -20,22 +20,91 @@
           <p:library exclude-inline-prefixes="#all" version="...">...</p:library>
         </x:expect>
         <x:expect label="EXPECT a '3.0' version" test="/p:library/@version eq '3.0'"/>
+        
+        <x:expect label="EXPECT to suppress the import to the specified baseline XProc library" test="empty(/p:library/p:import[ends-with(@href, 'main/xproc/Baseline.xpl')])"/>
 
-        <x:expect label="EXPECT to convert any imports to the XProc namespace" test="/p:library/p:import">
-          <p:import href="../../main/xproc/Baseline.xpl"/>
+        <x:expect label="EXPECT to convert any other imports to the XProc namespace" test="/p:library/p:import">
+          <p:import href="../../main/xproc/Baseline-canon.xpl"/>
         </x:expect>
+        
+        <x:expect label="EXPECT to create a 'run-tests' step" test="/p:library/p:declare-step[@type='b:run-tests']">
+          <p:declare-step type="b:run-tests">...</p:declare-step>
+        </x:expect>
+
+        <x:expect label="EXPECT to convert step definitions from the baseline XProc library" test="exists(/p:library/p:declare-step[@type='b:create-manifest'])"/>
+        
+        <x:expect label="EXPECT to add/copy a step for canonicalization" test="/p:library/p:declare-step[@type='b:canon']">
+          <p:declare-step type="b:canon">...</p:declare-step>
+        </x:expect>
+        
+        <x:expect label="EXPECT to add relevant canonicalization options for named tests to the b:canon step" test="/p:library/p:declare-step[@type='b:canon']/p:choose/p:when[contains(@test, 'xzr_w35_z3c')]">
+          <p:when test="$test-id eq 'xzr_w35_z3c'">
+            <bc:timestamps/>
+          </p:when>
+        </x:expect>
+        
+        <x:expect label="EXPECT to add global canonicalization options for named tests without specific canonicalization options" test="p:library/p:declare-step[@type='b:canon']/p:choose/p:otherwise">
+          <p:otherwise>
+            <bc:UUIDs/>
+          </p:otherwise>
+        </x:expect>
+        
+<!--        <x:expect label="TEST test test" select="''"/>-->
 
       </x:scenario>
 
     </x:scenario>
+    
+    <x:scenario label="WHEN matching in the 'copy' mode">
+      <x:context mode="copy"/>
+
+      <x:scenario label="GIVEN a generic step definition from the baseline XProc library">
+        <x:context expand-text="false">
+          <p:declare-step type="b:create-manifest">
+            <p:option name="path" required="true"/>
+            <p:output port="result" primary="true" serialization="..."/>
+
+            <p:file-info href="..."/>
+            <b:manifest-process/>
+            <p:xslt>
+              <p:with-input port="stylesheet" href="../XSLT/manifest.xsl"/>
+            </p:xslt>
+            <p:wrap match="/" wrapper="b:manifest"/>
+          </p:declare-step>
+        </x:context>
+        <x:expect label="EXPECT the step to be copied unchanged">
+          <p:declare-step type="b:create-manifest">
+            <p:option name="path" required="true"/>
+            <p:output port="result" primary="true" serialization="..."/>
+
+            <p:file-info href="..."/>
+            <b:manifest-process/>
+            <p:xslt>
+              <p:with-input port="stylesheet" href="../XSLT/manifest.xsl"/>
+            </p:xslt>
+            <p:wrap match="/" wrapper="b:manifest"/>
+          </p:declare-step>
+        </x:expect>
+      </x:scenario>
+
+      <x:scenario label="GIVEN an option from the baseline XProc library">
+        <x:context>
+          <p:option name="b:hash-algorithm" select="'crc'" static="true"/>
+        </x:context>
+        <x:expect label="EXPECT to copy the option unchanged">
+          <p:option name="b:hash-algorithm" select="'crc'" static="true"/>
+        </x:expect>
+      </x:scenario>
+      
+    </x:scenario>
 
   </x:scenario>
-  
+
   <x:scenario label="WHEN testing the b:relativeUri function">
     <x:call function="b:relativeUri"/>
-    
+
     <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/'">
-      
+
       <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'">
         <x:call>
           <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'"/>
@@ -43,7 +112,7 @@
         </x:call>
         <x:expect label="EXPECT the relative URL '../../../../main/xproc/Baseline.xpl'" select="'../../../../main/xproc/Baseline.xpl'"/>
       </x:scenario>
-      
+
       <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/'">
         <x:call>
           <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/'"/>
@@ -51,11 +120,11 @@
         </x:call>
         <x:expect label="EXPECT the relative URL '../../../../main/xproc/'" select="'../../../../main/xproc/'"/>
       </x:scenario>
-      
+
     </x:scenario>
-    
+
     <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/somefile.xpl'">
-      
+
       <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'">
         <x:call>
           <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'"/>
@@ -63,7 +132,7 @@
         </x:call>
         <x:expect label="EXPECT the relative URL '../../../../main/xproc/Baseline.xpl'" select="'../../../../main/xproc/Baseline.xpl'"/>
       </x:scenario>
-      
+
       <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/'">
         <x:call>
           <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/'"/>
@@ -71,9 +140,9 @@
         </x:call>
         <x:expect label="EXPECT the relative URL '../../../../main/xproc/'" select="'../../../../main/xproc/'"/>
       </x:scenario>
-      
+
     </x:scenario>
-    
+
   </x:scenario>
 
 </x:description>
