@@ -8,7 +8,53 @@
   exclude-inline-prefixes="#all"
   version="3.0">
     
-  <p:option name="b:hash-algorithm" select="'crc'" static="true"/>
+  <p:option name="b:hash-algorithm" select="'md'" static="true"/>
+  
+  <p:declare-step type="b:update-manifest">
+    <p:option name="test_uri" static="true"/>
+    <p:input port="source" primary="true" href="{$test_uri}"/>
+    <p:output port="result" primary="true"/>
+    
+    <!-- remove existing embedded manifests -->
+    <p:delete match="b:manifest"/>
+    
+    <!-- Create new manifests -->
+    <p:viewport match="b:test[b:baseline]">
+      <p:variable name="test-id" select="/*/@xml:id"/>
+      
+      <p:viewport match="b:baseline">
+        <p:identity name="element"/>
+        
+        <b:create-manifest path="{resolve-uri(/*/@uri, $test_uri)}" test-id="{$test-id}"/>
+        <p:identity name="manifest"/>
+        
+        <p:insert position="first-child">
+          <p:with-input port="source" pipe="@element"/>
+          <p:with-input port="insertion" pipe="@manifest"/>
+        </p:insert>
+        
+      </p:viewport>
+      
+    </p:viewport>
+    
+    <!-- Extract non-embedded manifests -->
+    <p:xslt name="extract_manifests">
+      <p:with-input port="stylesheet" href="../XSLT/update-manifest.xsl"/>
+    </p:xslt>
+    
+    <!-- Update test definitions -->
+    <p:if test="exists($test_uri)">
+      <p:store href="{$test_uri}"/>
+    </p:if>
+    
+    <p:for-each>
+      <p:with-input pipe="secondary@extract_manifests"/>
+      
+      <p:store href="{base-uri(.)}"/>
+    </p:for-each>
+    
+    
+  </p:declare-step>
   
   <p:declare-step type="b:create-manifest">
     <p:option name="path" required="true"/>
@@ -164,7 +210,7 @@
   <p:declare-step type="b:canon">
     <p:input port="source" primary="true" sequence="true"/>
     <p:output port="result" primary="true" sequence="true"/>
-    <p:option name="test-id" required="false" as="xs:string"/>
+    <p:option name="test-id" as="xs:string" select="''"/>
     <p:identity/>
   </p:declare-step>
   

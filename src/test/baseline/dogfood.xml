@@ -21,7 +21,7 @@
     <b:options>
       <b:option name="path" select="'../data/Input/manifest-creation/'"/>
     </b:options>
-    <b:baseline uri="../data/baseline/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx"/>
+    <b:baseline uri="../data/Input/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx"/>
   </b:test>
   
   <b:test pipeline="b:create-harness" xml:id="test_shx_mpl_bjc">

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description 
+  xmlns:p="http://www.w3.org/ns/xproc"
+  xmlns:c="http://www.w3.org/ns/xproc-step"
+  xmlns:x="http://www.jenitennison.com/xslt/xspec"
+  xmlns:b="http://ns.oup.com/xproc/baseline"
+  xmlns:bc="http://ns.oup.com/xproc/baseline_canon"
+  stylesheet="../../main/XSLT/update-manifest.xsl"
+  run-as="external">
+  <x:param name="config-uri" select="resolve-uri('data/')"/>
+  
+  <x:scenario label="WHEN processing Baseline tests in the default mode">
+    
+    <x:scenario label="GIVEN a b:baseline element with both an embedded manifest and a @manifest-url">
+      <x:context>
+        <b:baseline uri="../data/Input/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx">
+          <b:manifest>
+            <b:folder name="manifest-creation">
+              <b:file name="README.md" content-type="text/markdown" size="754" hash="92630962"/>
+              <b:folder name="StarWars">...</b:folder>
+            </b:folder>
+          </b:manifest>
+        </b:baseline>
+      </x:context>
+      <x:variable name="manifest" select="resolve-uri($x:result/@manifest-href, $config-uri)"/>
+      
+      <x:expect label="EXPECT the b:manifest to be supressed" test="/b:baseline">
+        <b:baseline uri="../data/Input/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx"/>
+      </x:expect>
+      
+      <x:expect pending="not possible to test with XSpec!" label="EXPECT the embedded manifest to be saved at the resolved @manifest-href" test="doc($manifest)/*">
+        <b:manifest>
+          <b:folder name="manifest-creation">
+            <b:file name="README.md" content-type="text/markdown" size="754" hash="92630962"/>
+            <b:folder name="StarWars">...</b:folder>
+          </b:folder>
+        </b:manifest>
+      </x:expect>
+    </x:scenario>
+    
+    
+  </x:scenario>
+  
+</x:description>
