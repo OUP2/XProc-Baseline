@@ -27,10 +27,6 @@
           <p:import href="../../main/xproc/Baseline-canon.xpl"/>
         </x:expect>
         
-        <x:expect label="EXPECT to create a 'run-tests' step" test="/p:library/p:declare-step[@type='b:run-tests']">
-          <p:declare-step type="b:run-tests">...</p:declare-step>
-        </x:expect>
-
         <x:expect label="EXPECT to convert step definitions from the baseline XProc library" test="exists(/p:library/p:declare-step[@type='b:create-manifest'])"/>
         
         <x:expect label="EXPECT to add/copy a step for canonicalization" test="/p:library/p:declare-step[@type='b:canon']">
@@ -49,10 +45,84 @@
           </p:otherwise>
         </x:expect>
         
-<!--        <x:expect label="TEST test test" select="''"/>-->
+        <x:expect label="EXPECT to create a 'run-test' step" test="/p:library/p:declare-step[@type='b:run-test']">
+          <p:declare-step type="b:run-test">...</p:declare-step>
+        </x:expect>
+        
+        <x:expect label="EXPECT to create a step to run the named test (e.g. 'xzr_w35_z3c')" test="/p:library/p:declare-step[@type='b:run-test']/p:choose/p:when[contains(@test, 'xzr_w35_z3c')]">
+          <p:when test="/*/@xml:id = 'xzr_w35_z3c'">...</p:when>
+        </x:expect>
 
       </x:scenario>
-
+      
+      <x:scenario label="GIVEN a b:test with an option but no input">
+        <x:context>
+          <b:test pipeline="b:create-manifest" xml:id="xzr_w35_z3c">
+            <b:description>Regression test for manifest creation from a file or folder</b:description>
+            <b:config>
+              <b:canonicalization pipeline="bc:timestamps"/>
+            </b:config>
+            <b:options>
+              <b:option name="path" select="'../data/Input/manifest-creation/'"/>
+            </b:options>
+            <b:baseline uri="../data/Input/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx"/>
+          </b:test>
+        </x:context>
+        <x:expect label="EXPECT to create a 'when' step to run the named test (e.g. 'xzr_w35_z3c')" test="/p:when[contains(@test, 'xzr_w35_z3c')]">
+          <p:when test="/*/@xml:id = 'xzr_w35_z3c'">...</p:when>
+        </x:expect>
+        <x:expect label="EXPECT to set the primary input to empty" test="/p:when/*[1]">
+          <p:identity>
+            <p:with-input>
+              <p:empty/>
+            </p:with-input>
+          </p:identity>
+        </x:expect>
+        <x:expect label="EXPECT to run the specified 'create-manifest' test from that step" test="/p:when/*[2]">
+          <b:create-manifest>...</b:create-manifest>
+        </x:expect>
+        <x:expect label="EXPECT to set the specified 'path' option with p:with-option" test="/p:when/b:create-manifest/p:with-option">
+          <p:with-option name="path" select="'../data/Input/manifest-creation/'"/>
+        </x:expect>
+      </x:scenario> 
+      <x:scenario label="GIVEN a b:test with no options but an input href">
+        <x:context>
+          <b:test pipeline="b:create-harness" xml:id="test_shx_mpl_bjc">
+            <b:description>Regression test for harness creation from a file or folder</b:description>
+            <b:input port="source" href="dogfood.xml"/>
+            <b:baseline uri="../data/baseline/test-harness/baseline_test-harness.xpl"/>
+          </b:test>
+        </x:context>
+        <x:expect label="EXPECT to create a 'when' step to run the named test (e.g. 'test_shx_mpl_bjc')" test="/p:when[contains(@test, 'test_shx_mpl_bjc')]">
+          <p:when test="/*/@xml:id = 'test_shx_mpl_bjc'">...</p:when>
+        </x:expect>
+        <x:expect label="EXPECT to clear the primary input" test="/p:when/*[1]">
+          <p:identity>
+            <p:with-input>
+              <p:empty/>
+            </p:with-input>
+          </p:identity>
+        </x:expect>
+        <x:expect label="EXPECT to run the b:create-harness step" test="/p:when/*[2]">
+          <b:create-harness>...</b:create-harness>
+        </x:expect>
+        <x:expect label="EXPECT to set the input(s) using the configuration in b:input" test="/p:when/b:create-harness/p:with-input">
+          <p:with-input port="source" href="dogfood.xml"/>
+        </x:expect>
+        
+      </x:scenario>
+      <x:scenario label="GIVEN a b:test with no options but an input document">
+        <x:context>
+          <b:test pipeline="b:create-harness" xml:id="test_shx_mpl_bjc">
+            <b:description>Regression test for harness creation from a file or folder</b:description>
+            <b:input port="source">
+              <b:document href="dogfood.xml"/>
+            </b:input>
+            <b:baseline uri="../data/baseline/test-harness/baseline_test-harness.xpl"/>
+          </b:test>
+        </x:context>
+      </x:scenario>
+      
     </x:scenario>
     
     <x:scenario label="WHEN matching in the 'copy' mode">
@@ -93,6 +163,46 @@
         </x:context>
         <x:expect label="EXPECT to copy the option unchanged">
           <p:option name="b:hash-algorithm" select="'crc'" static="true"/>
+        </x:expect>
+      </x:scenario>
+      
+    </x:scenario>
+
+    <x:scenario label="WHEN matching in the 'btop' mode">
+      <x:context mode="btop"/>
+      
+      <x:scenario label="GIVEN a node in the b: namespace">
+        <x:context>
+          <b:wibble>
+            <b:wobble foo='bar'/>
+          </b:wibble>
+        </x:context>
+        <x:expect label="EXPECT to output the same element but in the p:namespace">
+          <p:wibble>
+            <p:wobble foo='bar'/>
+          </p:wibble>
+        </x:expect>
+      </x:scenario>
+      
+      <x:scenario label="GIVEN a node not in the b:namespace">
+        <x:context>
+          <foo>bar</foo>
+        </x:context>
+        <x:expect label="EXPECT it to be copied to the output">
+          <foo>bar</foo>
+        </x:expect>
+      </x:scenario>
+      
+      <x:scenario label="GIVEN a mixed set of nodes">
+        <x:context>
+          <b:foo>
+            <bar/>
+          </b:foo>
+        </x:context>
+        <x:expect label="EXPECT nodes to be copied, changing b: nodes to p: nodes">
+          <p:foo>
+            <bar/>
+          </p:foo>
         </x:expect>
       </x:scenario>
       

@@ -7,7 +7,7 @@
   xmlns:math="http://www.w3.org/2005/xpath-functions/math"
   xmlns:b="http://ns.oup.com/xproc/baseline"
   xmlns:map="http://www.w3.org/2005/xpath-functions/map"
-  exclude-result-prefixes="xsl xs math map"
+  exclude-result-prefixes="#all"
   version="3.0">
   
   <xsl:output indent="yes"/>
@@ -16,6 +16,7 @@
   <xsl:mode name="copy" on-no-match="shallow-copy"/>
   <xsl:mode name="b:canon" on-no-match="shallow-skip"/>
   <xsl:mode name="namespaces" on-no-match="shallow-skip"/>
+  <xsl:mode name="btop" on-no-match="shallow-copy"/>
   
   <xsl:param name="baseline-xproc-uri" as="xs:anyURI"/>
   <xsl:variable name="harness-uri" select="resolve-uri((/b:regression-tests/b:config/b:test-harness/@href)[1], document-uri(/))"/>
@@ -48,11 +49,30 @@
       <xsl:apply-templates select="b:imports"/>
       <xsl:apply-templates select="doc($baseline-xproc-uri)/*/(node() except p:declare-step)" mode="copy"/>
       
-      <p:declare-step type="b:run-tests"/>
       
       <xsl:apply-templates select="doc($baseline-xproc-uri)/*/p:declare-step" mode="copy"/>
       
     </p:library>
+  </xsl:template>
+  
+  <xsl:template match="b:test[@xml:id]">
+    <p:when test="/*/@xml:id = '{@xml:id}'">
+      <xsl:variable name="QName" select="resolve-QName(@pipeline, .)"/>
+      <!-- Always clear the default input ports -->
+      <p:identity>
+        <p:with-input>
+          <p:empty/>
+        </p:with-input>
+      </p:identity>
+      <xsl:element name="{$QName}">
+        <xsl:apply-templates select="b:input" mode="btop"/>
+        <xsl:apply-templates select="b:options"/>
+      </xsl:element>
+    </p:when>
+  </xsl:template>
+  
+  <xsl:template match="b:options">
+    <xsl:apply-templates select="node()" mode="btop"/>
   </xsl:template>
   
   <xsl:template match="b:import">
@@ -65,6 +85,14 @@
   
   <xsl:template match="b:import/@href" mode="copy">
     <xsl:attribute name="href" select="b:relativeUri(.)"/>
+  </xsl:template>
+  
+  <xsl:template match="p:declare-step[@type='b:run-test']" mode="copy">
+    <p:declare-step type="b:run-test">
+      <p:choose>
+        <xsl:apply-templates select="$config-root//b:test"/>
+      </p:choose>
+    </p:declare-step>
   </xsl:template>
   
   <xsl:template match="p:declare-step[@type='b:canon']" mode="copy">
@@ -96,7 +124,25 @@
     <xsl:element name="{$QName}" namespace="{namespace-uri-from-QName($QName)}"/>
   </xsl:template>
   
-  <xsl:template match="node()" mode="copy">
+  <xsl:template match="b:input" mode="btop">
+    <p:with-input>
+      <xsl:apply-templates select="@*|node()" mode="#current"/>
+    </p:with-input>
+  </xsl:template>
+  
+  <xsl:template match="b:option" mode="btop">
+    <p:with-option>
+      <xsl:apply-templates select="@*|node()" mode="#current"/>
+    </p:with-option>
+  </xsl:template>
+  
+  <xsl:template match="b:*" mode="btop">
+    <xsl:element name="p:{local-name(.)}">
+      <xsl:apply-templates select="@*|node()" mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="@*|*|node()" mode="copy btop">
     <xsl:copy copy-namespaces="false">
       <xsl:apply-templates select="@*|node()" mode="#current"/>
     </xsl:copy>

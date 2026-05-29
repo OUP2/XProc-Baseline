@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-namespace b = "http://ns.oup.com/xproc/baseline"
+default namespace b = "http://ns.oup.com/xproc/baseline"
+namespace local = ""
+namespace p = "http://www.w3.org/ns/xproc"
 
 start = (regression-tests | manifest.element)
 
@@ -75,14 +77,93 @@ test =
     element b:description { text },
     element b:config { config.all }?,
     element b:options {
-      element b:option {
-        attribute name { xsd:NCName },
-        attribute select { text }
-      }+
+      Option+
     }?,
-    element b:input { empty }?,
+    Input?,
+    element b:output {
+      attribute uri {xsd:anyURI},
+      manifest.element?
+    },
     element b:baseline {
       attribute uri {xsd:anyURI},
       manifest?
     }
   }
+  
+Option =
+    element b:option {
+    attribute name { xsd:QName },
+    attribute as { text }?,
+    attribute select { text }?,
+    attribute collection { xsd:boolean }?,
+    href.attr?,
+    common.attributes,
+    inline.attributes,
+    (((Empty | (Document | Inline)*)
+      & (PipeInfo)*)
+     | AnyElement*)
+  }
+
+Input =
+  element input {
+    attribute port { xsd:NCName },
+    attribute select { text }?,
+    attribute content-types { text }?,
+    href.attr?,
+    common.attributes,
+    inline.attributes,
+    (((Empty | (Document | Inline)*)
+      & PipeInfo*)
+     | AnyElement*)
+  }
+
+Document =
+  element document {
+    href.attr,
+    attribute content-type { text }?,
+    document-properties.attr?,
+    attribute parameters { text }?,
+    common.attributes,
+    PipeInfo*
+  }
+
+Inline =
+  element inline {
+    common.attributes,
+    inline.attributes,
+    attribute content-type { text }?,
+    document-properties.attr?,
+    attribute encoding { text }?,
+    Any*
+  }
+
+Empty =
+  element empty {
+    common.attributes, (PipeInfo)*
+  }
+
+PipeInfo =
+  element pipeinfo { common.attributes, Any* }
+  
+Any = (
+  AnyElement
+  | text )
+  
+_any.attr = attribute * { text }
+
+AnyElement = element * - ( xml:* | p:* | b:*) { (_any.attr | Any)* }
+  
+common.attributes =
+  attribute xml:lang { text }?
+  & attribute xml:space { "default" | "preserve" }?
+  & attribute xml:id { xsd:ID }?
+  & attribute xml:base { xsd:anyURI }?
+  & extension.attr*
+    
+inline.attributes = attribute exclude-inline-prefixes { text }?
+    
+document-properties.attr = attribute document-properties { text }
+
+href.attr = attribute href { xsd:anyURI }
+
+extension.attr = attribute * - (local:* | xml:* | p:* | b:*) { text }

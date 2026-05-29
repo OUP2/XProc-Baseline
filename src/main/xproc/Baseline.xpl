@@ -10,10 +10,23 @@
     
   <p:option name="b:hash-algorithm" select="'md'" static="true"/>
   
+  <p:declare-step type="b:create-harness">
+    <p:input port="source" primary="true"/>
+    
+    <p:variable name="harness_uri" select="resolve-uri((/b:regression-tests/b:config/b:test-harness/@href)[1], base-uri())"/>
+    
+    <p:xslt parameters="map{'baseline-xproc-uri': static-base-uri()}">
+      <p:with-input port="stylesheet" href="../XSLT/create-harness.xsl"/>
+    </p:xslt>
+    
+    <p:store href="{$harness_uri}"/>
+
+  </p:declare-step>
+  
   <p:declare-step type="b:update-manifest">
-    <p:option name="test_uri" static="true"/>
-    <p:input port="source" primary="true" href="{$test_uri}"/>
-    <p:output port="result" primary="true"/>
+    <p:input port="source" primary="true"/>
+    <p:output port="result" primary="true" sequence="true"/>
+    <p:variable name="test_uri" select="base-uri()"/>
     
     <!-- remove existing embedded manifests -->
     <p:delete match="b:manifest"/>
@@ -52,10 +65,9 @@
       
       <p:store href="{base-uri(.)}"/>
     </p:for-each>
-    
-    
+     
   </p:declare-step>
-  
+   
   <p:declare-step type="b:create-manifest">
     <p:option name="path" required="true"/>
     <p:option name="test-id" as="xs:string" select="''"/>
@@ -207,22 +219,18 @@
     
   </p:declare-step>
   
-  <p:declare-step type="b:canon">
+  <p:declare-step type="b:run-test">
     <p:input port="source" primary="true" sequence="true"/>
     <p:output port="result" primary="true" sequence="true"/>
     <p:option name="test-id" as="xs:string" select="''"/>
     <p:identity/>
   </p:declare-step>
   
-  <p:declare-step type="b:create-harness">
-    <p:option name="test_uri" required="false" select="'file:/Users/yamahito/Projects/XProc-Baseline/src/test/baseline/dogfood.xml'" static="true"/>
-    <p:input port="source" primary="true" href="{$test_uri}"/>
-    
-    <p:variable name="harness_uri" select="resolve-uri((/b:regression-tests/b:config/b:test-harness/@href)[1])"/>
-    <p:xslt parameters="map{'baseline-xproc-href': static-base-uri()}">
-      <p:with-input port="stylesheet" href="../XSLT/create-harness.xsl"/>
-    </p:xslt>
-    <!--    <p:message select="static base uri is {static-base-uri()}"/>-->
+  <p:declare-step type="b:canon">
+    <p:input port="source" primary="true" sequence="true"/>
+    <p:output port="result" primary="true" sequence="true"/>
+    <p:option name="test-id" as="xs:string" select="''"/>
+    <p:identity/>
   </p:declare-step>
   
 </p:library>

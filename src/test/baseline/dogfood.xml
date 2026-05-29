@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <b:regression-tests
-  xmlns:bc="http://ns.oup.com/xproc/baseline_canon"
-  xmlns:b="http://ns.oup.com/xproc/baseline">
+  xmlns:b="http://ns.oup.com/xproc/baseline"
+  xmlns:bc="http://ns.oup.com/xproc/baseline_canon">
   
   <b:imports>
     <b:import href="../../main/xproc/Baseline.xpl"/>
@@ -21,11 +21,16 @@
     <b:options>
       <b:option name="path" select="'../data/Input/manifest-creation/'"/>
     </b:options>
+    <b:output uri="../../build/manifest-creation/"/>
     <b:baseline uri="../data/Input/manifest-creation/" manifest-href="../data/baseline/manifest-creation.bmx"/>
   </b:test>
   
   <b:test pipeline="b:create-harness" xml:id="test_shx_mpl_bjc">
     <b:description>Regression test for harness creation from a file or folder</b:description>
+    <b:input port="source">
+      <b:document href="dogfood.xml"/>
+    </b:input>
+    <b:output uri="baseline_test-harness.xpl"/>
     <b:baseline uri="../data/baseline/test-harness/baseline_test-harness.xpl"/>
   </b:test>
   
