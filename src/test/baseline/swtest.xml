@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:regression-tests
+  xmlns:b="http://ns.oup.com/xproc/baseline"
+  xmlns:bc="http://ns.oup.com/xproc/baseline_canon"
+  xmlns:sw="http://h2o.consulting/ns/star-wars">
+  
+  <b:imports>
+    <b:import href="../xproc/sw_test1.xpl"/>
+    <b:import href="../../main/xproc/Baseline-canon.xpl"/>
+  </b:imports>
+  
+  <b:config>
+    <b:test-harness href="baseline_test-harness.xpl"/>
+    <b:canonicalization pipeline="bc:timestamps"/>
+  </b:config>
+  
+  <b:test pipeline="sw:test1" xml:id="test_cc3_bcc_mjc">
+    <b:description>Simple zip test</b:description>
+    <b:output uri="../data/Output/sw_test1"/>
+    <b:baseline uri="../data/baseline/sw_test1"/>
+  </b:test>
+  
+</b:regression-tests>

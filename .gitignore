@@ -6,3 +6,4 @@ out/*
 **/xspec/*_catalog.xml
 **/*-report.html
 build/*
+src/test/data/Output/*
