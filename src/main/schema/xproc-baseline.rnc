@@ -79,7 +79,7 @@ test =
     element b:options {
       Option+
     }?,
-    Input?,
+    Input*,
     element b:output {
       attribute uri {xsd:anyURI},
       manifest.element?
