@@ -28,7 +28,7 @@
     <xsl:variable name="ns-maps" as="map(xs:anyURI, xs:string*)*">
       <xsl:map-entry key="xs:anyURI('http://ns.oup.com/xproc/baseline')" select="'b'"/>
       <xsl:map-entry key="xs:anyURI('http://www.w3.org/2001/XMLSchema')" select="'xs'"/>
-      <xsl:map-entry key="xs:anyURI('tp://www.w3.org/ns/xproc-step')" select="'c'"/>
+      <xsl:map-entry key="xs:anyURI('http://www.w3.org/ns/xproc-step')" select="'c'"/>
       <xsl:apply-templates select="$config-root" mode="namespaces"/>
     </xsl:variable>
     <xsl:sequence select="map:merge($ns-maps, map {'duplicates': 'combine'})"/>
@@ -60,7 +60,7 @@
   
   <xsl:template match="b:test[@xml:id]">
     <p:when test="$test-id = '{@xml:id}'">
-      <xsl:variable name="QName" select="resolve-QName(@pipeline, .)"/>
+      <xsl:variable name="QName" select="resolve-QName(@pipeline, .)" as="xs:QName"/>
       <p:output pipe="result@test-output"/>
       <!-- Always clear the default input ports -->
       <p:identity>
@@ -68,7 +68,7 @@
           <p:empty/>
         </p:with-input>
       </p:identity>
-      <xsl:element name="{$QName}">
+      <xsl:element name="{local-name-from-QName($QName)}" namespace="{namespace-uri-from-QName($QName)}">
         <xsl:apply-templates select="b:input" mode="btop"/>
         <xsl:apply-templates select="b:options"/>
       </xsl:element>
@@ -85,7 +85,6 @@
   <xsl:template match="b:import">
     <p:import>
       <xsl:apply-templates select="@*" mode="copy"/>
-      <xsl:message expand-text="yes">{$config-root}</xsl:message>
     </p:import>
   </xsl:template>
   
