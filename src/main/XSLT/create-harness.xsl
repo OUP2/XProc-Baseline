@@ -19,13 +19,16 @@
   <xsl:mode name="btop" on-no-match="shallow-copy"/>
   
   <xsl:param name="baseline-xproc-uri" as="xs:anyURI"/>
-  <xsl:variable name="harness-uri" select="resolve-uri((/b:regression-tests/b:config/b:test-harness/@href)[1], document-uri(/))"/>
+  <xsl:param name="config-uri" select="document-uri(/)"/>
+  <xsl:param name="harness-uri" select="resolve-uri((/b:regression-tests/b:config/b:test-harness/@href)[1], $config-uri)"/>
   <xsl:variable name="config-root" select="/"/>
       
   <!-- We need to ensure that namespace declarations are added for any pipelines referred to by their QName -->
   <xsl:variable name="namespaces" as="map(xs:anyURI, xs:string*)?">
     <xsl:variable name="ns-maps" as="map(xs:anyURI, xs:string*)*">
       <xsl:map-entry key="xs:anyURI('http://ns.oup.com/xproc/baseline')" select="'b'"/>
+      <xsl:map-entry key="xs:anyURI('http://www.w3.org/2001/XMLSchema')" select="'xs'"/>
+      <xsl:map-entry key="xs:anyURI('tp://www.w3.org/ns/xproc-step')" select="'c'"/>
       <xsl:apply-templates select="$config-root" mode="namespaces"/>
     </xsl:variable>
     <xsl:sequence select="map:merge($ns-maps, map {'duplicates': 'combine'})"/>
@@ -56,8 +59,9 @@
   </xsl:template>
   
   <xsl:template match="b:test[@xml:id]">
-    <p:when test="/*/@xml:id = '{@xml:id}'">
+    <p:when test="$test-id = '{@xml:id}'">
       <xsl:variable name="QName" select="resolve-QName(@pipeline, .)"/>
+      <p:output pipe="result@test-output"/>
       <!-- Always clear the default input ports -->
       <p:identity>
         <p:with-input>
@@ -68,6 +72,9 @@
         <xsl:apply-templates select="b:input" mode="btop"/>
         <xsl:apply-templates select="b:options"/>
       </xsl:element>
+      <p:identity name="test-output">
+        <p:with-input pipe="result@original"/>
+      </p:identity> 
     </p:when>
   </xsl:template>
   
@@ -78,10 +85,11 @@
   <xsl:template match="b:import">
     <p:import>
       <xsl:apply-templates select="@*" mode="copy"/>
+      <xsl:message expand-text="yes">{$config-root}</xsl:message>
     </p:import>
   </xsl:template>
   
-  <xsl:template match="b:import[resolve-uri(@href) eq resolve-uri($baseline-xproc-uri)]" priority="2"/>
+  <xsl:template match="b:import[b:relativeUri(@href) eq b:relativeUri($baseline-xproc-uri)]" priority="2"/>
   
   <xsl:template match="b:import/@href" mode="copy">
     <xsl:attribute name="href" select="b:relativeUri(.)"/>
@@ -89,6 +97,12 @@
   
   <xsl:template match="p:declare-step[@type='b:run-test']" mode="copy">
     <p:declare-step type="b:run-test">
+      <p:input port="source" primary="true" sequence="true">
+        <p:empty/>
+      </p:input>
+      <p:output port="result" primary="true" sequence="true"/>
+      <p:option name="test-id" required="true"/>
+      <p:identity name="original"/>
       <p:choose>
         <xsl:apply-templates select="$config-root//b:test"/>
       </p:choose>
@@ -111,6 +125,10 @@
         </p:otherwise>
       </p:choose>
     </xsl:copy>
+  </xsl:template> 
+  
+  <xsl:template match="p:xslt/p:with-input/@href" mode="copy">
+    <xsl:attribute name="href" select="b:changeRelativeBase(., $baseline-xproc-uri, $harness-uri)"/>
   </xsl:template>
   
   <xsl:template match="b:test[@xml:id]" mode="b:canon">
@@ -162,8 +180,8 @@
     <xsl:variable name="targetNorm" select="resolve-uri($target, static-base-uri())"/>
     
     <!-- Extract path components using regex -->
-    <xsl:variable name="basePath" select="replace($baseNorm, '^([^?#]*/).*$', '$1')"/>
-    <xsl:variable name="targetPath" select="substring-before(concat($targetNorm, '?'), '?')"/>
+    <xsl:variable name="basePath" select="replace($baseNorm, '^(file:*)?(//)?([^?#]*/).*$', '$3')"/>
+    <xsl:variable name="targetPath" select="replace($targetNorm,'^(file:*)?(//)?(.+)$', '$3')"/>
     
     <!-- Check if same scheme/authority -->
     <xsl:choose>
@@ -204,6 +222,14 @@
       else if ($downPath = '') then $upPath
       else concat($upPath, '/', $downPath)
       "/>
+  </xsl:function>
+  
+  <xsl:function name="b:changeRelativeBase" as="xs:string" visibility="public">
+    <xsl:param name="relativeURI" as="xs:string"/>
+    <xsl:param name="oldBase" as="xs:string"/>
+    <xsl:param name="newBase" as="xs:string"/>
+<!--    <xsl:sequence select="$newBase"/>-->
+    <xsl:sequence select="resolve-uri($relativeURI, $oldBase) => b:relativeUri($newBase)"/>
   </xsl:function>
   
 </xsl:stylesheet>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <x:description
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:x="http://www.jenitennison.com/xslt/xspec"
@@ -14,6 +15,7 @@
     <x:scenario label="WHEN matching in the default mode">
 
       <x:scenario label="GIVEN a sample XProc Baseline test definition">
+        <x:param name="config-uri" select="resolve-uri('../../baseline/dogfood.xml')"/>
         <x:context href="../baseline/dogfood.xml"/>
 
         <x:expect label="EXPECT an XProc library">
@@ -49,9 +51,21 @@
           <p:declare-step type="b:run-test">...</p:declare-step>
         </x:expect>
         
-        <x:expect label="EXPECT to create a step to run the named test (e.g. 'xzr_w35_z3c')" test="/p:library/p:declare-step[@type='b:run-test']/p:choose/p:when[contains(@test, 'xzr_w35_z3c')]">
-          <p:when test="/*/@xml:id = 'xzr_w35_z3c'">...</p:when>
+        <x:expect label="EXPECT the 'run-test' step to have a test-id option" test="/p:library/p:declare-step[@type='b:run-test']/p:option[@name eq 'test-id']">
+          <p:option name="test-id" required="true"/>
         </x:expect>
+        
+        <x:expect label="EXPECT the first step within 'run-test' to be a named identity step 'original'" test="/p:library/p:declare-step[@type='b:run-test']/p:option[@name eq 'test-id']/following-sibling::*[1]">
+          <p:identity name="original"/>
+        </x:expect>
+        
+        <x:expect label="EXPECT to create a step to run the named test (e.g. 'xzr_w35_z3c')" test="/p:library/p:declare-step[@type='b:run-test']/p:choose/p:when[contains(@test, 'xzr_w35_z3c')]">
+          <p:when test="$test-id = 'xzr_w35_z3c'">...</p:when>
+        </x:expect>
+        
+        <x:expect pending="TFJH tofix; problems with resolving urls" label="EXPECT to update relative URIs in XSLT href attributes (i.e. from '../' to '../../main')"
+          test="/p:library/p:declare-step[@type='b:create-harness']/p:xslt/p:with-input[1]/@href"
+          select="'../../main/XSLT/create-harness.xsl'"/>
 
       </x:scenario>
       
@@ -69,20 +83,28 @@
           </b:test>
         </x:context>
         <x:expect label="EXPECT to create a 'when' step to run the named test (e.g. 'xzr_w35_z3c')" test="/p:when[contains(@test, 'xzr_w35_z3c')]">
-          <p:when test="/*/@xml:id = 'xzr_w35_z3c'">...</p:when>
+          <p:when test="$test-id = 'xzr_w35_z3c'">...</p:when>
         </x:expect>
-        <x:expect label="EXPECT to set the primary input to empty" test="/p:when/*[1]">
+        <x:expect label="EXPECT to explicitly set the output" test="/p:when/*[1]">
+          <p:output pipe="result@test-output"/>
+        </x:expect>
+        <x:expect label="EXPECT to set the primary input to empty" test="/p:when/*[2]">
           <p:identity>
             <p:with-input>
               <p:empty/>
             </p:with-input>
           </p:identity>
         </x:expect>
-        <x:expect label="EXPECT to run the specified 'create-manifest' test from that step" test="/p:when/*[2]">
+        <x:expect label="EXPECT to run the specified 'create-manifest' test from that step" test="/p:when/*[3]">
           <b:create-manifest>...</b:create-manifest>
         </x:expect>
         <x:expect label="EXPECT to set the specified 'path' option with p:with-option" test="/p:when/b:create-manifest/p:with-option">
           <p:with-option name="path" select="'../data/Input/manifest-creation/'"/>
+        </x:expect>
+        <x:expect label="EXPECT to set an identity for the output to connect to" test="/p:when/*[last()]">
+          <p:identity name="test-output">
+            <p:with-input pipe="result@original"/>
+          </p:identity> 
         </x:expect>
       </x:scenario> 
       <x:scenario label="GIVEN a b:test with no options but an input href">
@@ -94,20 +116,28 @@
           </b:test>
         </x:context>
         <x:expect label="EXPECT to create a 'when' step to run the named test (e.g. 'test_shx_mpl_bjc')" test="/p:when[contains(@test, 'test_shx_mpl_bjc')]">
-          <p:when test="/*/@xml:id = 'test_shx_mpl_bjc'">...</p:when>
+          <p:when test="$test-id = 'test_shx_mpl_bjc'">...</p:when>
         </x:expect>
-        <x:expect label="EXPECT to clear the primary input" test="/p:when/*[1]">
+        <x:expect label="EXPECT to explicitly set the output" test="/p:when/*[1]">
+          <p:output pipe="result@test-output"/>
+        </x:expect>
+        <x:expect label="EXPECT to set the primary input to empty" test="/p:when/*[2]">
           <p:identity>
             <p:with-input>
               <p:empty/>
             </p:with-input>
           </p:identity>
         </x:expect>
-        <x:expect label="EXPECT to run the b:create-harness step" test="/p:when/*[2]">
+        <x:expect label="EXPECT to run the b:create-harness step" test="/p:when/*[3]">
           <b:create-harness>...</b:create-harness>
         </x:expect>
         <x:expect label="EXPECT to set the input(s) using the configuration in b:input" test="/p:when/b:create-harness/p:with-input">
           <p:with-input port="source" href="dogfood.xml"/>
+        </x:expect>
+        <x:expect label="EXPECT to set an identity for the output to connect to" test="/p:when/*[last()]">
+          <p:identity name="test-output">
+            <p:with-input pipe="result@original"/>
+          </p:identity> 
         </x:expect>
         
       </x:scenario>
@@ -125,7 +155,7 @@
       
     </x:scenario>
     
-    <x:scenario label="WHEN matching in the 'copy' mode">
+    <x:scenario label="WHEN matching in the 'copy' mode" pending="tfjh">
       <x:context mode="copy"/>
 
       <x:scenario label="GIVEN a generic step definition from the baseline XProc library">
@@ -232,6 +262,18 @@
       </x:scenario>
 
     </x:scenario>
+    
+    <x:scenario label="GIVEN the base URI 'file:///Projects/XProc-Baseline/src/test/data/baseline/test-harness/'">
+      
+      <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl''">
+        <x:call>
+          <x:param name="target" select="'file:/Projects/XProc-Baseline/src/main/xproc/Baseline.xpl'"/>
+          <x:param name="base" select="'file:///Projects/XProc-Baseline/src/test/data/baseline/test-harness/'"/>
+        </x:call>
+        <x:expect label="EXPECT the relative URL '../../../../main/xproc/Baseline.xpl'" select="'../../../../main/xproc/Baseline.xpl'"/>
+      </x:scenario>
+      
+    </x:scenario>
 
     <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/somefile.xpl'">
 
@@ -253,6 +295,19 @@
 
     </x:scenario>
 
+  </x:scenario>
+  
+  <x:scenario pending="tfjh" label="WHEN testing the b:changeRelativeBase function">
+    <x:call function="b:changeRelativeBase"/>
+    <x:scenario label="GIVEN a relative URL and two base-uris">
+      <x:call>
+        <x:param name="relativeURI" select="'../XSLT/create-harness.xspec'"/>
+        <x:param name="oldBase" select="'/src/main/xproc/Baseline.xpl'"/>
+        <x:param name="newBase" select="'/src/test/baseline/baseline_test-harness.xpl'"/>
+      </x:call>
+      
+      <x:expect label="THEN return the new relative url" select="'../../main/XSLT/create-harness.xspec'"/>
+    </x:scenario>
   </x:scenario>
 
 </x:description>

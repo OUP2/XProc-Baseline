@@ -10,6 +10,8 @@
   exclude-result-prefixes="#all"
   version="3.0">
   
+  <xsl:output method="xml"/>
+  
   <xsl:mode on-no-match="shallow-copy"/>
   
   <xsl:template match="c:directory">
