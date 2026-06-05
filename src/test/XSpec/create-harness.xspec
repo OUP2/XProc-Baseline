@@ -13,8 +13,18 @@
     <x:param name="baseline-xproc-uri" select="resolve-uri('../../../main/xproc/Baseline.xpl')"/>
     
     <x:scenario label="WHEN matching in the default mode">
+      
+      <x:scenario label="GIVEN a sample 'swtest' XProc Baseline test definition">
+        <x:param name="config-uri" select="resolve-uri('../../baseline/swtest.xml')"/>
+        <x:context href="../baseline/swtest.xml"/>
+        
+        <x:expect label="EXPECT to import to the XProc library to be tested" test="/p:library/p:import[contains(@href, 'sw_test1.xpl')]">
+          <p:import href="../xproc/sw_test1.xpl"/>
+        </x:expect>
+        
+      </x:scenario>
 
-      <x:scenario label="GIVEN a sample XProc Baseline test definition">
+      <x:scenario label="GIVEN a sample 'dogfood' XProc Baseline test definition">
         <x:param name="config-uri" select="resolve-uri('../../baseline/dogfood.xml')"/>
         <x:context href="../baseline/dogfood.xml"/>
 
@@ -63,9 +73,41 @@
           <p:when test="$test-id = 'xzr_w35_z3c'">...</p:when>
         </x:expect>
         
-        <x:expect pending="TFJH tofix; problems with resolving urls" label="EXPECT to update relative URIs in XSLT href attributes (i.e. from '../' to '../../main')"
-          test="/p:library/p:declare-step[@type='b:create-harness']/p:xslt/p:with-input[1]/@href"
-          select="'../../main/XSLT/create-harness.xsl'"/>
+        <x:expect pending="curly braces causing false negatives" label="EXPECT to create a step to report the result as the first declare step" test="/p:library/p:declare-step[1]">
+          <p:declare-step type="b:report">
+            <p:input port="source" primary="true"/>
+            <p:output port="result" primary="true" sequence="true"/>
+            <p:variable name="test_uri" select="base-uri()"/>
+
+            <p:identity/>
+
+            <p:viewport match="b:test[@xml:id][b:output]">
+              <p:variable name="test-id" select="/*/@xml:id" as="xs:string"/>
+              <p:delete match="b:output/b:manifest"/>
+              <p:identity name="test"/>
+              <b:run-test test-id="..."/>
+              <b:create-manifest path="..." test-id="..."/>
+              <p:identity name="output_manifest"/>
+              <p:insert match="b:output" position="first-child">
+                <p:with-input port="source" pipe="@test"/>
+                <p:with-input port="insertion" pipe="@output_manifest"/>
+              </p:insert>
+            </p:viewport>
+            <p:identity name="manifest_compare"/>
+
+            <p:if test="$b:report-formats = 'junit'">
+              <p:xslt>
+                <p:with-input port="source" pipe="@manifest_compare"/>
+                <p:with-input port="stylesheet" href="../../main/XSLT/junit.xsl"/>
+              </p:xslt>
+              <p:store href="..."/>
+            </p:if>
+
+          </p:declare-step>
+        </x:expect>
+        
+        <x:expect label="EXPECT to update relative URIs in XSLT href attributes (i.e. from '../' to '../../main')"
+          test="/p:library/p:declare-step[@type='b:create-harness']/p:xslt/p:with-input[1]/@href eq '../../main/XSLT/create-harness.xsl'"/>
 
       </x:scenario>
       
@@ -155,7 +197,7 @@
       
     </x:scenario>
     
-    <x:scenario label="WHEN matching in the 'copy' mode" pending="tfjh">
+    <x:scenario label="WHEN matching in the 'copy' mode" pending="TFJH: problems resolving URIs in XSpec">
       <x:context mode="copy"/>
 
       <x:scenario label="GIVEN a generic step definition from the baseline XProc library">
@@ -242,6 +284,18 @@
 
   <x:scenario label="WHEN testing the b:relativeUri function">
     <x:call function="b:relativeUri"/>
+    
+    <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/XSpec/create-harness.xspec'">
+      
+      <x:scenario label="GIVEN the target URI 'file:/Projects/XProc-Baseline/src/test/xproc/sw_test1.xpl'">
+        <x:call>
+          <x:param name="target" select="'file:/Projects/XProc-Baseline/src/test/xproc/sw_test1.xpl'"/>
+          <x:param name="base" select="'file:/Projects/XProc-Baseline/src/test/XSpec/create-harness.xspec'"/>
+        </x:call>
+        <x:expect label="EXPECT the relative URL '../xproc/sw_test1.xpl'" select="'../xproc/sw_test1.xpl'"/>
+      </x:scenario>
+      
+    </x:scenario>
 
     <x:scenario label="GIVEN the base URI 'file:/Projects/XProc-Baseline/src/test/data/baseline/test-harness/'">
 
@@ -297,7 +351,7 @@
 
   </x:scenario>
   
-  <x:scenario pending="tfjh" label="WHEN testing the b:changeRelativeBase function">
+  <x:scenario pending="TFJH: errors with java.lang.ArrayStoreException" label="WHEN testing the b:changeRelativeBase function">
     <x:call function="b:changeRelativeBase"/>
     <x:scenario label="GIVEN a relative URL and two base-uris">
       <x:call>

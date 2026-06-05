@@ -9,6 +9,7 @@
   version="3.0">
     
   <p:option name="b:hash-algorithm" select="'md'" static="true"/>
+  <p:option name="b:report-formats" select="'junit'" static="true"/>
   
   <p:declare-step type="b:create-harness">
     <p:input port="source" primary="true"/>
@@ -231,6 +232,37 @@
     <p:output port="result" primary="true" sequence="true"/>
     <p:option name="test-id" as="xs:string" select="''"/>
     <p:identity/>
+  </p:declare-step>
+  
+  <p:declare-step type="b:report">
+    <p:input port="source" primary="true"/>
+    <p:output port="result" primary="true" sequence="true"/>
+    <p:variable name="test_uri" select="base-uri()"/>
+    
+    <p:identity/>
+    
+    <p:viewport match="b:test[@xml:id][b:output]">
+      <p:variable name="test-id" select="/*/@xml:id" as="xs:string"/>
+      <p:delete match="b:output/b:manifest"/>
+      <p:identity name="test"/>
+      <b:run-test test-id="{$test-id}"/>
+      <b:create-manifest path="{resolve-uri(/b:test/b:output/@uri)}" test-id="{$test-id}"/>
+      <p:identity name="output_manifest"/>
+      <p:insert match="b:output" position="first-child">
+        <p:with-input port="source" pipe="@test"/>
+        <p:with-input port="insertion" pipe="@output_manifest"/>
+      </p:insert>
+    </p:viewport>
+    <p:identity name="manifest_compare"/>
+    
+    <p:if test="$b:report-formats = 'junit'">
+      <p:xslt>
+        <p:with-input port="source" pipe="@manifest_compare"/>
+        <p:with-input port="stylesheet" href="../XSLT/junit.xsl"/>
+      </p:xslt>
+      <p:store href="{$test_uri}.junit.xml"/>
+    </p:if>
+    
   </p:declare-step>
   
 </p:library>

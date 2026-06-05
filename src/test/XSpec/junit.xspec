@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:p="http://www.w3.org/ns/xproc"
+  xmlns:c="http://www.w3.org/ns/xproc-step"
+  xmlns:x="http://www.jenitennison.com/xslt/xspec"
+  xmlns:b="http://ns.oup.com/xproc/baseline"
+  xmlns:bc="http://ns.oup.com/xproc/baseline_canon"
+  stylesheet="../../main/XSLT/junit.xsl"
+  run-as="external">
+  
+  <x:scenario label="WHEN matching in the default mode">
+    
+    <x:scenario label="GIVEN a matching test result">
+      <x:context>
+        <b:regression-tests xmlns:b="http://ns.oup.com/xproc/baseline" xmlns:bc="http://ns.oup.com/xproc/baseline_canon" xmlns:sw="http://h2o.consulting/ns/star-wars">
+          
+          <b:imports>
+            <b:import href="../xproc/sw_test1.xpl"/>
+            <b:import href="../../main/xproc/Baseline-canon.xpl"/>
+          </b:imports>
+          
+          <b:config>
+            <b:test-harness href="sw_test-harness.xpl"/>
+            <b:canonicalization pipeline="bc:timestamps"/>
+          </b:config>
+          
+          <b:test pipeline="sw:test1" xml:id="test_cc3_bcc_mjc">
+            <b:description>Simple zip test</b:description>
+            <b:input port="source" href="../data/Input/manifest-creation/StarWars/StarWars.zip"/>
+            <b:output uri="../data/Output/sw_test1"><b:manifest><b:folder name="sw_test1"><b:archive name="Return_of_the_Jedi.zip" content-type="application/zip"><b:file name="Return_of_the_Jedi.xml" content-type="application/xml" compression-method="deflated" hash="846799aef9a306817db5472824b903f9"/></b:archive><b:archive name="Revenge_of_the_Sith.zip" content-type="application/zip"><b:file name="Revenge_of_the_Sith.xml" content-type="application/xml" compression-method="deflated" hash="27e508c220e0f5f186fa497fb97585aa"/></b:archive><b:archive name="Attack_of_the_Clones.zip" content-type="application/zip"><b:file name="Attack_of_the_Clones.xml" content-type="application/xml" compression-method="deflated" hash="3e23254cb968ee505e265a228401a048"/></b:archive><b:archive name="A_New_Hope.zip" content-type="application/zip"><b:file name="A_New_Hope.xml" content-type="application/xml" compression-method="deflated" hash="2b4b8dd65357a81090284178615f7b51"/></b:archive><b:archive name="The_Empire_Strikes_Back.zip" content-type="application/zip"><b:file name="The_Empire_Strikes_Back.xml" content-type="application/xml" compression-method="deflated" hash="1978a7b0fd9b13a7d4cb7115dccec027"/></b:archive><b:archive name="The_Force_Awakens.zip" content-type="application/zip"><b:file name="The_Force_Awakens.xml" content-type="application/xml" compression-method="deflated" hash="a298c0ab9bec374288062c9a7dc378f9"/></b:archive><b:archive name="The_Phantom_Menace.zip" content-type="application/zip"><b:file name="The_Phantom_Menace.xml" content-type="application/xml" compression-method="deflated" hash="4928db92355b9ff53407ffc2e4b1ee8b"/></b:archive></b:folder></b:manifest></b:output>
+            <b:baseline uri="../data/baseline/sw_test1">
+              <b:manifest>
+                <b:folder name="sw_test1">
+                  <b:archive name="Return_of_the_Jedi.zip" content-type="application/zip">
+                    <b:file name="Return_of_the_Jedi.xml" content-type="application/xml" compression-method="deflated" hash="846799aef9a306817db5472824b903f9"/>
+                  </b:archive>
+                  <b:archive name="Revenge_of_the_Sith.zip" content-type="application/zip">
+                    <b:file name="Revenge_of_the_Sith.xml" content-type="application/xml" compression-method="deflated" hash="27e508c220e0f5f186fa497fb97585aa"/>
+                  </b:archive>
+                  <b:archive name="Attack_of_the_Clones.zip" content-type="application/zip">
+                    <b:file name="Attack_of_the_Clones.xml" content-type="application/xml" compression-method="deflated" hash="3e23254cb968ee505e265a228401a048"/>
+                  </b:archive>
+                  <b:archive name="A_New_Hope.zip" content-type="application/zip">
+                    <b:file name="A_New_Hope.xml" content-type="application/xml" compression-method="deflated" hash="2b4b8dd65357a81090284178615f7b51"/>
+                  </b:archive>
+                  <b:archive name="The_Empire_Strikes_Back.zip" content-type="application/zip">
+                    <b:file name="The_Empire_Strikes_Back.xml" content-type="application/xml" compression-method="deflated" hash="1978a7b0fd9b13a7d4cb7115dccec027"/>
+                  </b:archive>
+                  <b:archive name="The_Force_Awakens.zip" content-type="application/zip">
+                    <b:file name="The_Force_Awakens.xml" content-type="application/xml" compression-method="deflated" hash="a298c0ab9bec374288062c9a7dc378f9"/>
+                  </b:archive>
+                  <b:archive name="The_Phantom_Menace.zip" content-type="application/zip">
+                    <b:file name="The_Phantom_Menace.xml" content-type="application/xml" compression-method="deflated" hash="4928db92355b9ff53407ffc2e4b1ee8b"/>
+                  </b:archive>
+                </b:folder>
+              </b:manifest>
+            </b:baseline>
+          </b:test>
+        </b:regression-tests>
+      </x:context>
+      <x:expect label="EXPECT a passing junit file">
+        <testsuites>
+          <testsuite name="XProc Baseline" failures="0">
+            <testcase classname="sw:test1" name="test_cc3_bcc_mjc"/>
+          </testsuite>
+        </testsuites>
+      </x:expect>
+    </x:scenario>
+    
+    <x:scenario label="GIVEN a non-matching test result">
+      <x:context>
+        <b:regression-tests xmlns:b="http://ns.oup.com/xproc/baseline" xmlns:bc="http://ns.oup.com/xproc/baseline_canon" xmlns:sw="http://h2o.consulting/ns/star-wars">
+          
+          <b:imports>
+            <b:import href="../xproc/sw_test1.xpl"/>
+            <b:import href="../../main/xproc/Baseline-canon.xpl"/>
+          </b:imports>
+          
+          <b:config>
+            <b:test-harness href="sw_test-harness.xpl"/>
+            <b:canonicalization pipeline="bc:timestamps"/>
+          </b:config>
+          
+          <b:test pipeline="sw:test1" xml:id="test_cc3_bcc_mjc">
+            <b:description>Simple zip test</b:description>
+            <b:input port="source" href="../data/Input/manifest-creation/StarWars/StarWars.zip"/>
+            <b:output uri="../data/Output/sw_test1"><b:manifest><b:folder name="sw_test1"><b:archive name="Return_of_the_Jedi.zip" content-type="application/zip"><b:file name="Return_of_the_Jedi.xml" content-type="application/xml" compression-method="deflated" hash="846799bef9a306817db5472824b903f9"/></b:archive><b:archive name="Revenge_of_the_Sith.zip" content-type="application/zip"><b:file name="Revenge_of_the_Sith.xml" content-type="application/xml" compression-method="deflated" hash="27e508c220e0f5f186fa497fb97585aa"/></b:archive><b:archive name="Attack_of_the_Clones.zip" content-type="application/zip"><b:file name="Attack_of_the_Clones.xml" content-type="application/xml" compression-method="deflated" hash="3e23254cb968ee505e265a228401a048"/></b:archive><b:archive name="A_New_Hope.zip" content-type="application/zip"><b:file name="A_New_Hope.xml" content-type="application/xml" compression-method="deflated" hash="2b4b8dd65357a81090284178615f7b51"/></b:archive><b:archive name="The_Empire_Strikes_Back.zip" content-type="application/zip"><b:file name="The_Empire_Strikes_Back.xml" content-type="application/xml" compression-method="deflated" hash="1978a7b0fd9b13a7d4cb7115dccec027"/></b:archive><b:archive name="The_Force_Awakens.zip" content-type="application/zip"><b:file name="The_Force_Awakens.xml" content-type="application/xml" compression-method="deflated" hash="a298c0ab9bec374288062c9a7dc378f9"/></b:archive><b:archive name="The_Phantom_Menace.zip" content-type="application/zip"><b:file name="The_Phantom_Menace.xml" content-type="application/xml" compression-method="deflated" hash="4928db92355b9ff53407ffc2e4b1ee8b"/></b:archive></b:folder></b:manifest></b:output>
+            <b:baseline uri="../data/baseline/sw_test1">
+              <b:manifest>
+                <b:folder name="sw_test1">
+                  <b:archive name="Return_of_the_Jedi.zip" content-type="application/zip">
+                    <b:file name="Return_of_the_Jedi.xml" content-type="application/xml" compression-method="deflated" hash="846799aef9a306817db5472824b903f9"/>
+                  </b:archive>
+                  <b:archive name="Revenge_of_the_Sith.zip" content-type="application/zip">
+                    <b:file name="Revenge_of_the_Sith.xml" content-type="application/xml" compression-method="deflated" hash="27e508c220e0f5f186fa497fb97585aa"/>
+                  </b:archive>
+                  <b:archive name="Attack_of_the_Clones.zip" content-type="application/zip">
+                    <b:file name="Attack_of_the_Clones.xml" content-type="application/xml" compression-method="deflated" hash="3e23254cb968ee505e265a228401a048"/>
+                  </b:archive>
+                  <b:archive name="A_New_Hope.zip" content-type="application/zip">
+                    <b:file name="A_New_Hope.xml" content-type="application/xml" compression-method="deflated" hash="2b4b8dd65357a81090284178615f7b51"/>
+                  </b:archive>
+                  <b:archive name="The_Empire_Strikes_Back.zip" content-type="application/zip">
+                    <b:file name="The_Empire_Strikes_Back.xml" content-type="application/xml" compression-method="deflated" hash="1978a7b0fd9b13a7d4cb7115dccec027"/>
+                  </b:archive>
+                  <b:archive name="The_Force_Awakens.zip" content-type="application/zip">
+                    <b:file name="The_Force_Awakens.xml" content-type="application/xml" compression-method="deflated" hash="a298c0ab9bec374288062c9a7dc378f9"/>
+                  </b:archive>
+                  <b:archive name="The_Phantom_Menace.zip" content-type="application/zip">
+                    <b:file name="The_Phantom_Menace.xml" content-type="application/xml" compression-method="deflated" hash="4928db92355b9ff53407ffc2e4b1ee8b"/>
+                  </b:archive>
+                </b:folder>
+              </b:manifest>
+            </b:baseline>
+          </b:test>
+        </b:regression-tests>
+      </x:context>
+      <x:expect label="EXPECT a failing junit file">
+        <testsuites>
+          <testsuite name="XProc Baseline" failures="1">
+            <testcase classname="sw:test1" name="test_cc3_bcc_mjc">
+              <failure type="AssertionError" message="Manifest comparison failed"/>
+            </testcase>
+          </testsuite>
+        </testsuites>
+      </x:expect>
+    </x:scenario>
+    
+    
+  </x:scenario>
+   
+</x:description>

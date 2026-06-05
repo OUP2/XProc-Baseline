@@ -52,8 +52,10 @@
       <xsl:apply-templates select="b:imports"/>
       <xsl:apply-templates select="doc($baseline-xproc-uri)/*/(node() except p:declare-step)" mode="copy"/>
       
+      <!-- Add b:report at the top so it's the default step -->
+      <xsl:apply-templates select="doc($baseline-xproc-uri)/*/p:declare-step[@type eq 'b:report']" mode="copy"/>
       
-      <xsl:apply-templates select="doc($baseline-xproc-uri)/*/p:declare-step" mode="copy"/>
+      <xsl:apply-templates select="doc($baseline-xproc-uri)/*/p:declare-step[@type ne 'b:report']" mode="copy"/>
       
     </p:library>
   </xsl:template>
@@ -68,7 +70,7 @@
           <p:empty/>
         </p:with-input>
       </p:identity>
-      <xsl:element name="{local-name-from-QName($QName)}" namespace="{namespace-uri-from-QName($QName)}">
+      <xsl:element name="{xs:string($QName)}" namespace="{namespace-uri-from-QName($QName)}">
         <xsl:apply-templates select="b:input" mode="btop"/>
         <xsl:apply-templates select="b:options"/>
       </xsl:element>
@@ -91,7 +93,7 @@
   <xsl:template match="b:import[b:relativeUri(@href) eq b:relativeUri($baseline-xproc-uri)]" priority="2"/>
   
   <xsl:template match="b:import/@href" mode="copy">
-    <xsl:attribute name="href" select="b:relativeUri(.)"/>
+    <xsl:attribute name="href" select="b:changeRelativeBase(., $config-uri, $harness-uri)"/>
   </xsl:template>
   
   <xsl:template match="p:declare-step[@type='b:run-test']" mode="copy">
