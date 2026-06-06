@@ -4,8 +4,8 @@ Thank you for your interest in XProc-Baseline! This document explains how to con
 
 ## Current Status
 
-**Note**: XProc-Baseline is in early development. The primary developer is Tomos Hillman, with a v1.0 target around June 2026. 
-We're not actively seeking major feature contributions yet, but feedback, bug reports, and documentation improvements are very welcome.
+**Note**: XProc-Baseline is in beta development. The primary developer is Tomos Hillman, with a v1.0 target around June 2026. 
+Feedback, bug reports, and documentation improvements are very welcome.
 
 ## How to Contribute
 

@@ -6,7 +6,14 @@ Built for XProc 3.0+, XProc-Baseline works across different XProc engines (Calab
 
 ## Quick Start
 
-*(Coming with v1.0)*
+1. Write your test definition
+  - Use `src/main/schema/xproc-baseline.rnc` for validation
+  - See `test/baseline/swtest.xml` for a simple example
+2. Generate your test-harness by providing your test definition as an input to `src/main/xproc/Baseline.xpl`
+3. Generate baseline manifests by running the `b:update-manifest` step in your newly created test-harness.
+  - This will update your test definition file
+  - This step is only required when the baseline (i.e. the expected output) is created or changed.
+4. Run your test suite by providing the test definition to your newly created test harness XProc.
 
 ## The Problem
 
@@ -22,11 +29,14 @@ Existing tools like **XSpec** are excellent for unit testing XSLT and individual
 
 ## Status & Future
 
-XProc-Baseline is under development and will be open-sourced in 2026, pending approval from Oxford University Press. This repository is a working backup; the official public repository will be announced later.
+XProc-Baseline is copyright 2026 Oxford University Press.  It is Open Source under the Apache 2 License. 
 
-We're not actively seeking major feature contributions yet, but feedback, bug reports, and documentation improvements are very welcome.
+Feedback, bug reports, and documentation improvements are very welcome, and can be made by Pull Request.  See CONTRIBUTING.md for further details.
 
-**Current focus**: Core manifest generation, baseline comparison, and configurable canonicalization for XProc 3.0 pipelines running on Calabash and Morgana.
+**Current focus**:
+- Baseline comparison and human readable reporting for XProc 3.0 pipelines running on Calabash and Morgana
+- Documentation
+- Testing 
 
 ## Core Approach
 
@@ -62,5 +72,5 @@ XProc-Baseline generates a testing pipeline from this specification, eliminating
 
 ### Engine-Agnostic Design
 
-Built using standard XProc 3.0+, XProc-Baseline will work across different XProc engines and projects without modification.
+Built using standard XProc 3.0+, XProc-Baseline aims to work across different XProc engines and projects without modification.
 
